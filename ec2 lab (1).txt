@@ -1,0 +1,140 @@
+sudo su
+-----------------------------
+lab 1 - html : apache http server provisioning
+
+sudo yum update
+sudo yum install httpd -y
+sudo service httpd start
+cd /var/www/html
+ls ---kichu nai
+now create index.html
+sudo nano index.html
+<html><h1>hello</h1></html>
+
+--------------------------------
+
+EBS
+lsblk
+mkfs -t ext4 /dev/xvdb
+mkdir /abc
+mount /dev/xvdb /abc
+then cd abc
+ls
+---------------------------------
+snapshot - to see the files already there:
+file -s /dev/xvdf
+-----------------------------------
+without aws configure (that is keeping the credential in ec2) we will create a role to access the S3 from ec2
+iam role: ec2-s3 full access
+launch ec2
+sudo su
+aws s3 ls
+-------------------------------
+
+provision ec2 from ece - 
+aws ec2 run-instances
+
+ec2-provision ec2-admin access
+create ec2 instance - default - attach ec2 role(adminrole); name - myec2cli
+
+aws ec2 describe-instances
+
+//aws ec2 describe-images - copy image id:ami-165a0876
+
+aws ec2 run-instances --image-id ami-165a0876 --count 1 --instance-type t2.micro --key-name MYKEYNAME --security-group-ids SECURITYGROUPID --subnet-id SUBNETID
+----------------------------------
+CLI S3
+
+
+create 3 bucket - virginia, london and sydney reigons and add objects
+
+role - create s3 admin access role
+
+ssh to ec2
+attach role to ec2
+then, aws s3 ls
+
+upload image: aws s3 cp --recursive s3://BUCKETNAME /home.ec2-user
+
+if ec2 and s3 are not in the same reigon
+aws s3 cp --recursive s3://BUCKETNAME /home.ec2-user --regioAME
+----------------------------------
+
+Bash scripting (north virginia)
+create a s3admin role
+create a index.html and put it in S3
+create ec2 and apply s3 admin role
+create ec2 ad bootstrap - 
+
+#!/bin/bash
+yum update -y
+yum install httpd -y
+service httpd start
+//chkconfig httpd on
+cd /var/www/html
+aws s3 cp s3://mybucket/index.html /var/www/html 
+
+---------------------------------
+php composer
+
+#!/bin/bash
+
+yum update -y
+
+yum install httpd24 php56 git -y
+service httpd start
+
+chkconfig httpd on
+
+cd /var/www/html
+
+echo "<?php phpinfo();?>" >test.php
+
+git clone https://github.com/acloudguru/s3
+then ip address/test.php
+----------------------------------
+elastic load balancer
+create an ec2 - 2 html: index.html(containing hii) and healthcheck.html(healthcheck from ec2!!!!!)
+then set up elb
+ping path -->/healthcheck.html
+2,5,2,3
+copy dns nanme
+then go to ec2 and rm -rf healthcheck.html - health check fail
+
+echo "I'm healthyy">healthcheck.html
+
+--------------------------------
+efs lab
+
+create 2 ec2 in two az
+create a elb --> healthy threshold to 3 and health check interval - 10sec
+
+in both ec2 install httpd and start the service
+
+go to cd /var/www/html and do ls to show that there is nothing in that directory
+
+
+
+create efs
+go to ec2-->
+sudo yum install -y nfs-utils
+
+sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 fs-84c457cd.efs.us-east-1.amazonaws.com:/ /var/www/html
+
+cd /var/www/hml
+nano index.html
+hiiiii this is from efs
+
+go to another e2
+mount
+check in /var/www/html folder for index.html
+----------------------------------
+
+
+
+
+
+
+
+
+
